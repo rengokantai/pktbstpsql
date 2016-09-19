@@ -42,3 +42,41 @@ If pg_control file is not valid. To see which data is in the control
 pg_controldata /data
 ```
 If pg_resetxlog cannot find a valid control file, it is necessary to use -f.
+
+###Chapter 10. A Standard Approach to Troubleshooting
+####Getting an overview of the problem
+```
+pg_stat_activity
+```
+The VACUUM command can only clean up dead rows if there is no transaction around anymore that is capable of seeing the data.  
+But it cannot solve all problems.(Old, idle transactions can delay the cleanup of rows)
+####Attacking low performance
+######Reviewing indexes
+pg_stat_activity vs pg_stat_user_tables
+```
+SELECT relname, seq_scan, seq_tup_read, idx_scan AS idx, seq_tup_read / seq_scan AS ratio FROM  pg_stat_user_tables;
+```
+
+######Fixing UPDATE commands
+To change the FILLFACTOR to 70 percent
+```
+ALTER TABLE foo SET (FILLFACTOR=70);
+```
+Change FILLFACTOR of an index
+```
+ALTER INDEX foo_index SET (FILLFACTOR=70);
+```
+
+######Detecting slow queries
+```
+SELECT (SELECT datname FROM   pg_database WHERE   dbid = oid), query, calls, total_time FROM   pg_stat_statements AS x ORDER BY total_time DESC;
+```
+[pg_stat_statements page](https://www.postgresql.org/docs/current/static/pgstatstatements.html)
+[pg_database page](https://www.postgresql.org/docs/current/static/catalog-pg-database.html)
+important attributes in pg_stat_statement
+```
+temp_blks_read  
+temp_blks_written  
+blk_read_time  
+blk_write_time
+```
