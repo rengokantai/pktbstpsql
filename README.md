@@ -1,4 +1,33 @@
 ## pktbstpsql
+###Chapter 7. PostgreSQL Monitoring
+####Checking the overall database behavior
+######Checking pg_stat_activity
+The application_name field can be set freely by the end user.
+```
+SET application_name TO 'a';
+SHOW application_name;  
+```
+######Checking database-level information
+```
+\d pg_stat_database
+```
+some useful fields:
+```
+xact_commit  --  number of successful transactions
+xact_rollback --  number of aborted transactions
+```
+Clue about IO:(not enabled by default)
+```
+ blk_write_time 
+ blk_read_time
+ ```
+check
+```
+SHOW track_io_timing;
+```
+Unless track_io_timing has been activated in postgresql.conf, there is no data available.
+
+
 ###Chapter 9. Handling Hardware and Software Disasters
 ####Checksums 
 To enable data checksums
