@@ -26,7 +26,54 @@ check
 SHOW track_io_timing;
 ```
 Unless track_io_timing has been activated in postgresql.conf, there is no data available.
+####Detecting I/O bottlenecks
+```
+\d pg_stat_bgwriter 
+```
+####Checking for conflicts
+```
+\d pg_stat_database_conflicts
+```
+####Chasing down slow queries
+Enable this query in postgresql.conf
+```
+shared_preload_libraries = 'pg_stat_statements'
+```
+use
+```
+CREATE EXTENSION pg_stat_statements;
+```
+get 2 slow queries
+```
+SELECT query, total_time, calls FROM   pg_stat_statements ORDER BY 2 DESC;
+```
+reset data
+```
+SELECT pg_stat_statements_reset();
+```
+####Inspecting internal information
+######Looking inside a table
+PostgreSQL uses a mechanism called Multi-Version Concurrency Control (MVCC).  
+Hence, space on the disk might be wasted if too many versions of too many rows exist.(table bloat)  
 
+use pgstattuple
+```
+CREATE EXTENSION pgstattuple;
+SELECT * FROM pgstattuple('pg_class');
+```
+The dead_* columns with information about the number and size of dead rows in the table.  
+Dead rows can easily be turned into free space by running VACUUM.   
+
+######Run pgstattuple for many tables at the same time  
+```
+SELECT relname, (pgstattuple(oid)).* FROM   pg_class WHERE   relkind = 'r' ORDER BY table_len DESC;
+```
+This query has to read tables entirely so using it too often is not a good idea because it causes heavy I/O.  
+
+######Inspecting the I/O cache
+```
+CREATE EXTENSION pg_buffercache;
+```
 
 ###Chapter 9. Handling Hardware and Software Disasters
 ####Checksums 
