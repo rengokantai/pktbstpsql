@@ -1,4 +1,39 @@
 ## pktbstpsql
+
+
+
+###Chapter 6. Writing Proper Procedures
+####Choosing the right language
+```
+CREATE LANGUAGE
+```
+
+####Managing procedures and transactions
+create a function concat strings
+```
+CREATE FUNCTION ksum(text, text) RETURNS text AS ' SELECT $1 || $2 ' LANGUAGE 'sql';
+```
+invoke
+```
+SELECT ksum('1', '2');  -- 12
+```
+
+######Understanding transactions and procedures
+```
+CREATE FUNCTION fail(int) RETURNS int AS $$
+ DECLARE
+  one = ALIAS FOR $1;
+ BEGIN
+  RETURN one/0;
+ EXCEPTION WHEN division_by_zero THEN
+  RETURN 0;
+ END;
+$$ LANGUARE 'plpgsql';
+```
+
+####Procedures and indexing
+(tbc)
+
 ###Chapter 7. PostgreSQL Monitoring
 ####Checking the overall database behavior
 ######Checking pg_stat_activity
@@ -74,6 +109,59 @@ This query has to read tables entirely so using it too often is not a good idea 
 ```
 CREATE EXTENSION pg_buffercache;
 ```
+
+equivalent query
+```
+relfilenode: (SELECT relname FROM pg_class WHERE relfilenode = 'this oid';)
+reltablespace: (SELECT spcname FROM pg_tablespace WHERE oid = 'this oid';)
+reldatabase: (SELECT datname FROM pg_database WHERE oid = 'this oid';)
+```
+
+###Chapter 8. Fixing Backups and Replication
+####Using pg_dump
+review: basic command
+```
+pg_dump tbname > /dump.sql
+psql tbname < /dump.sql
+```
+blobs using blob option:
+```
+-b (--blobs) 
+```
+######Handling passwords .pgpass
+format
+```
+hostname:port:database:username:password
+```
+######Creating custom format dumps
+```
+pg_dump tbname -Fc > /dump.fc
+pg_restore --list /dump.fc
+```
+we can restore subset of dump:
+```
+pg_restore -t t_tbname /dump.fc
+```
+(tbc)
+####Managing point-in-time recovery
+#####How PITR works
+Take a snapshot of the data and archive the transaction log from then on.
+
+
+######Preparing PostgreSQL for PITR
+create folder
+```
+mkdir /archive
+```
+in postgresql.conf edit
+```
+wal_level = archive
+archive_mode = on 
+archive_command = 'cp %p /archive/%f '
+```
+######Taking base backups
+(tbc)
+
 
 ###Chapter 9. Handling Hardware and Software Disasters
 ####Checksums 
