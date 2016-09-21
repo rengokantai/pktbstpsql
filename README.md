@@ -100,6 +100,30 @@ SELECT get_bit(x, 5), set_bit(x, 5, 1), x::int FROM tbnamee; -- 0 | 0110010101 |
 ```
 
 #######text versus cidr/inet/circle/point
+The cidr option represents an IP address that includes a netmask.  
+The inet option will only store an IP address without a netmask.  
+
+Do numeric math
+```
+SELECT '::1'::cidr + 43242342;  // ::2.147.211.103
+```
+
+Do not use two columns to store a point.  
+Ex  
+```
+CREATE TABLE tbname (loc text, coord point);
+```
+create point
+```
+SELECT '(10, 30)'::point;
+```
+distance
+```
+SELECT '(10, 30)'::point <-> '(20, 20)'::point;
+```
+####Deciding on normalization
+#####The 7th normal form
+#####Arrays versus normalizations
 
 
 
