@@ -40,10 +40,68 @@ CREATE DATABASE name ENCODING =
 ######Killing the postmaster
 When start PostgreSQL we are starting a process called postmaster.  
 Whenever a new connection comes in, this postmaster forks and creates a backend process (BE).  
-This process is in charge of handling exactly one connection.   
+This process is in charge of handling exactly one connection.  
+
+
+
+
+
+
+
 
 ###Chapter 2. Creating Data Structures
 ####Grouping columns the right way
+Ex
+```
+CREATE TABLE tbname (i1 int,i2 int, v1 varchar(100));
+CREATE TABLE
+test=# INSERT INTO t_test SELECT 1,1, 'abcd'FROM generate_series(1, 10000000);
+//INSERT 0 10000000
+```
+get size of table
+```
+SELECT pg_size_pretty(pg_relation_size('tbname'));
+```
+The pg_relation_size returns the size of a table in bytes.  
+
+This will have larger size:
+```
+CREATE TABLE tbname2 (i1 int,v2 varchar(100),i2 int);
+INSERT INTO tbname2 SELECT 1, 'abcd',2 FROM generate_series(1, 10000000);
+```
+get size of table
+```
+SELECT pg_size_pretty(pg_relation_size('tbname2'));
+```
+ A CPU has a hard time if a field does not start at a multiplier of CPU word-size.  
+ Therefore, PostgreSQL will accordingly align data physically.  
+ 
+ ####Deciding on data types and structure
+ #####Finding the right type
+ ######varchar versus text
+text is not limited to a certain number of characters but to 1 GB per entry. 
+ 
+######numeric versus floating point
+```
+SELECT '1000.1'::numeric - '1000';  //0.1
+```
+The numeric relies entirely on the working of the CPU's integer unit. the option should be used for financial data and all other applications requiring precision.
+
+######boolean fields versus bit fields
+Ex
+```
+CREATE TABLE tbname (x bit(10));   -- or not sure, use varbit(20)
+INSERT INTO tbname VALUES ('0110000101');
+```
+
+bit functions: get_bit, set_bit
+```
+SELECT get_bit(x, 5), set_bit(x, 5, 1), x::int FROM tbnamee; -- 0 | 0110010101 | 389
+```
+
+#######text versus cidr/inet/circle/point
+
+
 
 ###Chapter 6. Writing Proper Procedures
 ####Choosing the right language
