@@ -1,6 +1,49 @@
 ## pktbstpsql
+###Chapter 1. Installing PostgreSQL
+####Deciding on a version number
+version number a.b.c  
+If a or b changed,a migration process is needed.
 
 
+####Memory and kernel issues
+######Adjusting kernel parameters for Mac OS X
+```
+sysctl -w kern.sysv.shmmax
+sysctl -w kern.sysv.shmmin
+sysctl -w kern.sysv.shmmni
+sysctl -w kern.sysv.shmseg
+sysctl -w kern.sysv.shmall
+```
+######Fixing other kernel-related limitations
+If run a large-scale system, raise the maximum number of open files allowed.
+```
+vim /etc/security/limits.conf
+```
+edit
+```
+postgres    hard    nofile    1024
+postgres    soft    nofile    1024
+```
+
+####Adding checksums to a database instance
+```
+initdb -k
+```
+
+####Preventing encoding-related issues
+```
+CREATE DATABASE name ENCODING =
+```
+
+
+####Avoiding template pollution
+######Killing the postmaster
+When start PostgreSQL we are starting a process called postmaster.  
+Whenever a new connection comes in, this postmaster forks and creates a backend process (BE).  
+This process is in charge of handling exactly one connection.   
+
+###Chapter 2. Creating Data Structures
+####Grouping columns the right way
 
 ###Chapter 6. Writing Proper Procedures
 ####Choosing the right language
