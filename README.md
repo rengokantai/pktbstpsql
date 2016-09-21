@@ -127,6 +127,66 @@ SELECT '(10, 30)'::point <-> '(20, 20)'::point;
 
 
 
+
+###Chapter 3. Handling Indexes
+Understanding indexes in PostgreSQL
+```
+CREATE TABLE t_test (id int4);
+INSERT INTO t_test SELECT * FROM generate_series(1, 10000);
+explain SELECT * FROM t_test WHERE id = 123;
+```
+PostgreSQL will execute SQL in four stages:
+- Parser: At this stage, the syntax of the query will be checked.
+- Rewrite system: The rewrite system will rewrite the query, handle rules.
+- Optimizer: PostgreSQL will decide on the strategy and come up with a execution plan which represents the fastest way through the query to get the result set.
+- Executor: The result will be returned to the end user.  
+
+(tbc)
+
+
+
+###Chapter 4. Reading Data Efficiently and Correctly
+####Understanding the power of NULL
+#####Seeing NULL in action
+```
+SELECT NULL = ''; -- returns nothing
+SELECT '' IS NULL; -- f
+SELECT NULL = NULL; -- returns nothing
+SELECT NULL IS NULL; -- t
+```
+#####NULL and storage
+NULL does not need space in the disk. In PostgreSQL, every row contains a so-called NULL bitmap.  
+A varchar string will need a fair amount of space even if it is empty.  
+
+
+####Fixing disastrous joins
+
+
+
+####Reading large amounts of data
+(tbc)
+ensure synchronize_seqscans to on:
+```
+SHOW synchronize_seqscans ;
+```
+
+
+####Understanding prepared queries
+```
+PREPARE plan(int) AS SELECT $1;
+EXECUTE plan(1);
+```
+Get all prepared statements
+```
+\d pg_prepared_statements
+```
+
+
+Remove a statement from a backend, use the DEALLOCATE command:
+```
+DEALLOCATE name/ALL
+```
+
 ###Chapter 6. Writing Proper Procedures
 ####Choosing the right language
 ```
